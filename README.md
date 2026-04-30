@@ -15,7 +15,6 @@ The player starts with an inefficient production line and spends eKaisen points 
 - Strict frontend TypeScript
 - DTO validation with `class-validator`
 - Score plausibility validation on the backend
-- Local mock fallback for frontend API calls while backend is unavailable
 - Local in-memory backend storage fallback when Firebase is not configured
 
 ## Live URLs

@@ -15,3 +15,9 @@ export const Row = styled.div`
   border: 1px solid var(--border);
   border-radius: 8px;
 `;
+
+export const EmptyState = styled.p`
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+`;

@@ -7,13 +7,21 @@ import * as Styled from './RankingPanel.styled';
 
 export function RankingPanel() {
   const [scores, setScores] = useState<ScoreRecord[]>([]);
+  const [status, setStatus] = useState('Loading ranking...');
 
   useEffect(() => {
     let isMounted = true;
 
-    void getTopScores(10).then((records) => {
-      if (isMounted) setScores(records);
-    });
+    void getTopScores(10)
+      .then((records) => {
+        if (!isMounted) return;
+
+        setScores(records);
+        setStatus(records.length > 0 ? '' : 'No scores saved yet.');
+      })
+      .catch(() => {
+        if (isMounted) setStatus('Unable to load ranking.');
+      });
 
     return () => {
       isMounted = false;
@@ -25,6 +33,7 @@ export function RankingPanel() {
       <SectionTitle>Top 10 Ranking</SectionTitle>
 
       <Styled.List>
+        {status ? <Styled.EmptyState>{status}</Styled.EmptyState> : null}
         {scores.map((score, index) => (
           <Styled.Row key={score.id}>
             <strong>#{index + 1}</strong>
