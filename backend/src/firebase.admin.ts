@@ -5,7 +5,6 @@ import {
   initializeApp,
   type AppOptions,
 } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
 
 const projectId =
   process.env.FIREBASE_PROJECT_ID ??
@@ -29,7 +28,8 @@ function getFirebaseAppOptions(): AppOptions | undefined {
   return projectId ? { projectId } : undefined;
 }
 
-const app = getApps()[0] ?? initializeApp(getFirebaseAppOptions());
+export const firebaseApp =
+  getApps()[0] ?? initializeApp(getFirebaseAppOptions());
 
 if (
   process.env.USE_FIREBASE_EMULATOR === 'true' &&
@@ -37,9 +37,3 @@ if (
 ) {
   process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:4004';
 }
-
-export const db = getFirestore(app);
-
-db.settings({
-  ignoreUndefinedProperties: true,
-});

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { getTopScores } from '../api/scoresApi';
-import type { ScoreRecord } from '../types/scores';
+import { getTopScores } from '../../api/scoresApi';
+import type { ScoreRecord } from '../../types/scores';
+import { Panel, SectionTitle } from '../shared/shared.styled';
+import * as Styled from './RankingPanel.styled';
 
 export function RankingPanel() {
   const [scores, setScores] = useState<ScoreRecord[]>([]);
@@ -19,18 +21,18 @@ export function RankingPanel() {
   }, []);
 
   return (
-    <div className="panel">
-      <h2 className="section-title">Top 10 Ranking</h2>
+    <Panel>
+      <SectionTitle>Top 10 Ranking</SectionTitle>
 
-      <div className="ranking-list">
+      <Styled.List>
         {scores.map((score, index) => (
-          <div className="ranking-row" key={score.id}>
+          <Styled.Row key={score.id}>
             <strong>#{index + 1}</strong>
             <span>{score.playerName}</span>
             <strong>{score.score.toLocaleString('en-US')} pts</strong>
-          </div>
+          </Styled.Row>
         ))}
-      </div>
-    </div>
+      </Styled.List>
+    </Panel>
   );
 }

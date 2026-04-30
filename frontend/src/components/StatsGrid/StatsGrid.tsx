@@ -1,5 +1,6 @@
-import type { FactoryMetrics, GameState } from '../game/gameTypes';
-import { StatCard } from './StatCard';
+import type { FactoryMetrics, GameState } from '../../game/gameTypes';
+import { StatCard } from '../StatCard/StatCard';
+import * as Styled from './StatsGrid.styled';
 
 type StatsGridProps = {
   game: GameState;
@@ -8,7 +9,7 @@ type StatsGridProps = {
 
 export function StatsGrid({ game, metrics }: StatsGridProps) {
   return (
-    <div className="stats-grid">
+    <Styled.Grid>
       <StatCard
         label="Kaizen Points"
         value={Math.floor(game.points).toLocaleString('en-US')}
@@ -22,6 +23,6 @@ export function StatsGrid({ game, metrics }: StatsGridProps) {
         value={`${Math.round(metrics.defectRate * 100)}%`}
       />
       <StatCard label="OEE" value={`${Math.round(metrics.oee * 100)}%`} />
-    </div>
+    </Styled.Grid>
   );
 }

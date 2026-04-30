@@ -1,3 +1,5 @@
+import { isAxiosError } from 'axios';
+
 import type {
   PlayerRankResult,
   SaveScoreRequest,
@@ -17,7 +19,11 @@ export async function saveScore(
   try {
     const response = await apiClient.post<SaveScoreResult>('/scores', payload);
     return response.data;
-  } catch {
+  } catch (error) {
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     return createMockSaveResult(payload);
   }
 }
@@ -28,7 +34,11 @@ export async function getTopScores(limit = 10): Promise<ScoreRecord[]> {
       params: { limit },
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     return mockTopScores.slice(0, limit);
   }
 }
@@ -41,7 +51,19 @@ export async function getPlayerRank(
       params: { playerName },
     });
     return response.data;
-  } catch {
+  } catch (error) {
+    if (!shouldUseMockFallback(error)) {
+      throw error;
+    }
+
     return createMockRank(playerName);
   }
+}
+
+function shouldUseMockFallback(error: unknown): boolean {
+  if (!isAxiosError(error)) {
+    return false;
+  }
+
+  return !error.response || error.response.status === 404;
 }

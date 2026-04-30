@@ -22,6 +22,8 @@ Chart.register(
 
 type LineChartProps = {
   title: string;
+  xAxisTitle: string;
+  yAxisTitle: string;
   labels: string[];
   values: number[];
   color: string;
@@ -30,6 +32,8 @@ type LineChartProps = {
 
 export function LineChart({
   title,
+  xAxisTitle,
+  yAxisTitle,
   labels,
   values,
   color,
@@ -70,12 +74,25 @@ export function LineChart({
         },
         scales: {
           x: {
+            title: {
+              display: true,
+              text: '',
+              color: '#94a3b8',
+            },
             ticks: { color: '#94a3b8', maxTicksLimit: 8 },
             grid: { color: 'rgba(148, 163, 184, 0.14)' },
           },
           y: {
             beginAtZero: true,
-            ticks: { color: '#94a3b8' },
+            title: {
+              display: true,
+              text: '',
+              color: '#94a3b8',
+            },
+            ticks: {
+              color: '#94a3b8',
+              callback: (value) => formatAxisValue(Number(value)),
+            },
             grid: { color: 'rgba(148, 163, 184, 0.14)' },
           },
         },
@@ -97,8 +114,22 @@ export function LineChart({
     chart.data.datasets[0].data = values;
     chart.data.datasets[0].borderColor = color;
     chart.data.datasets[0].backgroundColor = fill;
+    chart.options.scales!.x!.title!.text = xAxisTitle;
+    chart.options.scales!.y!.title!.text = yAxisTitle;
     chart.update();
-  }, [color, fill, labels, title, values]);
+  }, [color, fill, labels, title, values, xAxisTitle, yAxisTitle]);
 
   return <canvas ref={canvasRef} />;
+}
+
+function formatAxisValue(value: number): string {
+  if (value >= 1_000_000) return `${trimScale(value / 1_000_000)}M`;
+  if (value >= 1_000) return `${trimScale(value / 1_000)}K`;
+  if (value >= 100) return `${Math.round(value)}`;
+  if (value >= 10) return `${Math.round(value)}`;
+  return `${Number.isInteger(value) ? value : value.toFixed(1)}`;
+}
+
+function trimScale(value: number): string {
+  return value >= 10 ? value.toFixed(0) : value.toFixed(1).replace('.0', '');
 }

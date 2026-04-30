@@ -3,29 +3,24 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { db } from '../firebase.admin';
 import { CreateScoreDto } from './dto/create-score.dto';
+import { MAX_IMPROVEMENT_PURCHASES } from './dto/improvements.dto';
+import { ScoresRepository } from './scores.repository';
 import {
   IMPROVEMENT_NAMES,
   Improvements,
+  ImprovementName,
   PlayerRankResult,
   SaveScoreResult,
   ScoreRecord,
 } from './scores.types';
 
-type StoredScore = Omit<ScoreRecord, 'id' | 'createdAt' | 'updatedAt'> & {
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-};
-
-const MAX_IMPROVEMENT_PURCHASES = 5;
 const SCORE_GRACE_POINTS = 1000;
 const MAX_PLAUSIBLE_POINTS_PER_SECOND = 100;
 
 @Injectable()
 export class ScoresService {
-  private readonly scoresCollection = db.collection('scores');
+  constructor(private readonly scoresRepository: ScoresRepository) {}
 
   async saveScore(createScoreDto: CreateScoreDto): Promise<SaveScoreResult> {
     const normalizedPlayerName = this.normalizePlayerName(
@@ -40,87 +35,36 @@ export class ScoresService {
       createScoreDto.elapsedSeconds,
     );
 
-    const scoreRef = this.scoresCollection.doc(normalizedPlayerName);
-
-    return db.runTransaction(async (transaction) => {
-      const existingSnapshot = await transaction.get(scoreRef);
-      const existingScore = existingSnapshot.exists
-        ? this.mapSnapshot(
-            existingSnapshot.id,
-            existingSnapshot.data() as StoredScore,
-          )
-        : null;
-
-      if (existingScore && existingScore.score >= createScoreDto.score) {
-        return {
-          saved: false,
-          score: existingScore,
-        };
-      }
-
-      const scorePayload = {
-        playerName: createScoreDto.playerName.trim(),
-        score: createScoreDto.score,
-        improvements,
-        elapsedSeconds: createScoreDto.elapsedSeconds,
-        updatedAt: FieldValue.serverTimestamp(),
-        ...(existingScore ? {} : { createdAt: FieldValue.serverTimestamp() }),
-      };
-
-      transaction.set(scoreRef, scorePayload, { merge: true });
-
-      const now = Timestamp.now();
-
-      return {
-        saved: true,
-        score: {
-          id: normalizedPlayerName,
-          playerName: scorePayload.playerName,
-          score: scorePayload.score,
-          improvements: scorePayload.improvements,
-          elapsedSeconds: scorePayload.elapsedSeconds,
-          createdAt: existingScore?.createdAt ?? now.toDate().toISOString(),
-          updatedAt: now.toDate().toISOString(),
-        },
-      };
+    return this.scoresRepository.saveIfHigher(normalizedPlayerName, {
+      playerName: createScoreDto.playerName.trim(),
+      score: createScoreDto.score,
+      improvements,
+      elapsedSeconds: createScoreDto.elapsedSeconds,
     });
   }
 
   async getTopScores(limit = 10): Promise<ScoreRecord[]> {
-    const snapshot = await this.scoresCollection
-      .orderBy('score', 'desc')
-      .limit(limit)
-      .get();
-
-    return snapshot.docs.map((doc) =>
-      this.mapSnapshot(doc.id, doc.data() as StoredScore),
-    );
+    return this.scoresRepository.findTop(limit);
   }
 
   async getPlayerRank(playerName: string): Promise<PlayerRankResult> {
     const normalizedPlayerName = this.normalizePlayerName(playerName);
-    const playerSnapshot = await this.scoresCollection
-      .doc(normalizedPlayerName)
-      .get();
+    const playerScore =
+      await this.scoresRepository.findById(normalizedPlayerName);
 
-    if (!playerSnapshot.exists) {
+    if (!playerScore) {
       return {
         rank: null,
         score: null,
       };
     }
 
-    const playerScore = this.mapSnapshot(
-      playerSnapshot.id,
-      playerSnapshot.data() as StoredScore,
+    const betterScoreCount = await this.scoresRepository.countScoresAbove(
+      playerScore.score,
     );
-    const betterScoresSnapshot = await this.scoresCollection
-      .where('score', '>', playerScore.score)
-      .count()
-      .get();
 
     return {
-      rank: betterScoresSnapshot.data().count + 1,
+      rank: betterScoreCount + 1,
       score: playerScore,
     };
   }
@@ -130,7 +74,7 @@ export class ScoresService {
   }
 
   private normalizeImprovements(
-    improvements: Record<string, number>,
+    improvements: Partial<Record<ImprovementName, number>>,
   ): Improvements {
     const normalizedEntries = IMPROVEMENT_NAMES.map((name) => {
       const value = improvements[name] ?? 0;
@@ -160,17 +104,5 @@ export class ScoresService {
         `Score is not plausible for ${elapsedSeconds} elapsed seconds`,
       );
     }
-  }
-
-  private mapSnapshot(id: string, data: StoredScore): ScoreRecord {
-    return {
-      id,
-      playerName: data.playerName,
-      score: data.score,
-      improvements: data.improvements,
-      elapsedSeconds: data.elapsedSeconds,
-      createdAt: data.createdAt.toDate().toISOString(),
-      updatedAt: data.updatedAt.toDate().toISOString(),
-    };
   }
 }

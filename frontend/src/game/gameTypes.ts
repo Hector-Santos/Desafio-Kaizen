@@ -26,6 +26,7 @@ export type FactoryMetrics = {
 
 export type ChartPoint = {
   label: string;
+  second: number;
   production: number;
   defectsPerMinute: number;
   oee: number;

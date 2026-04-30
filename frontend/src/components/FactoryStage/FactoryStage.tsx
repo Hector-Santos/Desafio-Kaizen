@@ -1,6 +1,7 @@
 import type { KeyboardEvent, MouseEvent } from 'react';
 
-import type { FactoryMetrics, PieceEvent } from '../game/gameTypes';
+import type { FactoryMetrics, PieceEvent } from '../../game/gameTypes';
+import * as Styled from './FactoryStage.styled';
 
 type FactoryStageProps = {
   metrics: FactoryMetrics;
@@ -30,38 +31,37 @@ export function FactoryStage({
   }
 
   return (
-    <div
-      className="factory-stage"
+    <Styled.Stage
       aria-label="Animated production grid"
       role="button"
       tabIndex={0}
       onClick={handleStageClick}
       onKeyDown={handleStageKeyDown}
     >
-      <div className="factory-title-bar">
+      <Styled.TitleBar>
         <span>Production Line</span>
         <span>Green = good · Red = defect</span>
-      </div>
+      </Styled.TitleBar>
 
-      <div className="factory-hint">
+      <Styled.Hint>
         <span>
           Click the line to produce now. Idle production keeps running at 1Hz.
         </span>
-      </div>
+      </Styled.Hint>
 
-      <div className="factory-live-metrics" aria-hidden="true">
+      <Styled.LiveMetrics aria-hidden="true">
         <span>{metrics.speed.toFixed(2)}/s</span>
         <span>{Math.round(metrics.defectRate * 100)}% defects</span>
-      </div>
+      </Styled.LiveMetrics>
 
       {pieces.map((piece) => (
-        <span
-          className={`piece-pop ${piece.status}`}
+        <Styled.Piece
           key={piece.id}
+          $status={piece.status}
           style={{ left: `${piece.x}%`, top: `${piece.y}%` }}
           onAnimationEnd={() => onPieceDone(piece.id)}
         />
       ))}
-    </div>
+    </Styled.Stage>
   );
 }

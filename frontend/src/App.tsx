@@ -1,13 +1,15 @@
 import { useRef } from 'react';
 
 import './App.css';
-import { AppHeader } from './components/AppHeader';
-import { FactoryStage } from './components/FactoryStage';
-import { ImprovementsPanel } from './components/ImprovementsPanel';
-import { ProductionDashboard } from './components/ProductionDashboard';
-import { RankingPanel } from './components/RankingPanel';
-import { SaveScorePanel } from './components/SaveScorePanel';
-import { StatsGrid } from './components/StatsGrid';
+import * as Styled from './App.styled';
+import { AppHeader } from './components/AppHeader/AppHeader';
+import { FactoryStage } from './components/FactoryStage/FactoryStage';
+import { ImprovementsPanel } from './components/ImprovementsPanel/ImprovementsPanel';
+import { ProductionDashboard } from './components/ProductionDashboard/ProductionDashboard';
+import { RankingPanel } from './components/RankingPanel/RankingPanel';
+import { SaveScorePanel } from './components/SaveScorePanel/SaveScorePanel';
+import { Panel, SectionTitle } from './components/shared/shared.styled';
+import { StatsGrid } from './components/StatsGrid/StatsGrid';
 import { useGameState } from './hooks/useGameState';
 
 export default function App() {
@@ -34,15 +36,15 @@ export default function App() {
   }
 
   return (
-    <main className="app">
+    <Styled.AppShell>
       <AppHeader
         onRankingClick={scrollToRanking}
         onSaveClick={scrollToSaveScore}
       />
 
-      <section className="layout">
-        <div className="panel">
-          <h2 className="section-title">Factory Floor</h2>
+      <Styled.Layout>
+        <Panel>
+          <SectionTitle>Factory Floor</SectionTitle>
 
           <FactoryStage
             metrics={metrics}
@@ -52,16 +54,16 @@ export default function App() {
           />
           <StatsGrid game={state} metrics={metrics} />
           <ProductionDashboard history={state.history} />
-        </div>
+        </Panel>
 
         <ImprovementsPanel
           game={state}
           canPurchase={canPurchaseUpgrade}
           onPurchase={purchaseUpgrade}
         />
-      </section>
+      </Styled.Layout>
 
-      <section className="secondary-layout">
+      <Styled.SecondaryLayout>
         <div ref={rankingRef}>
           <RankingPanel />
         </div>
@@ -69,7 +71,7 @@ export default function App() {
         <div ref={saveScoreRef}>
           <SaveScorePanel game={state} />
         </div>
-      </section>
-    </main>
+      </Styled.SecondaryLayout>
+    </Styled.AppShell>
   );
 }

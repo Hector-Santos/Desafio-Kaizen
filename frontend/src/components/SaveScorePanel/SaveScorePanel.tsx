@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
-import { getPlayerRank, saveScore } from '../api/scoresApi';
-import type { GameState } from '../game/gameTypes';
+import { getPlayerRank, saveScore } from '../../api/scoresApi';
+import type { GameState } from '../../game/gameTypes';
+import { Panel, PrimaryButton, SectionTitle } from '../shared/shared.styled';
+import * as Styled from './SaveScorePanel.styled';
 
 type SaveScorePanelProps = {
   game: GameState;
@@ -36,20 +38,21 @@ export function SaveScorePanel({ game }: SaveScorePanelProps) {
           ? `Score saved.${rankText}`
           : `Stored score is higher.${rankText}`,
       );
+    } catch {
+      setStatus('Score rejected by the backend validation.');
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="panel">
-      <h2 className="section-title">Save Score</h2>
+    <Panel>
+      <SectionTitle>Save Score</SectionTitle>
 
-      <form className="save-form">
+      <Styled.Form>
         <label>
-          <span className="helper-text">Player name</span>
-          <input
-            className="input"
+          <Styled.HelperText>Player name</Styled.HelperText>
+          <Styled.Input
             type="text"
             placeholder="Enter your name"
             value={playerName}
@@ -58,26 +61,24 @@ export function SaveScorePanel({ game }: SaveScorePanelProps) {
         </label>
 
         <label>
-          <span className="helper-text">Current score</span>
-          <input
-            className="input"
+          <Styled.HelperText>Current score</Styled.HelperText>
+          <Styled.Input
             type="text"
             value={`${Math.floor(game.points).toLocaleString('en-US')} pts`}
             readOnly
           />
         </label>
 
-        <button
-          className="button primary"
+        <PrimaryButton
           type="button"
           disabled={isSubmitting}
           onClick={handleSubmit}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Score'}
-        </button>
+        </PrimaryButton>
 
-        <p className="helper-text">{status}</p>
-      </form>
-    </div>
+        <Styled.Status>{status}</Styled.Status>
+      </Styled.Form>
+    </Panel>
   );
 }
