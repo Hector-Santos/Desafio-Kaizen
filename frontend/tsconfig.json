@@ -16,10 +16,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
 
-    "strict": false,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "forceConsistentCasingInFileNames": false,
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "forceConsistentCasingInFileNames": true,
 
     "baseUrl": ".",
     "paths": {
