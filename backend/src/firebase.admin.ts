@@ -1,5 +1,10 @@
 import 'dotenv/config';
-import { cert, getApps, initializeApp, type AppOptions } from 'firebase-admin/app';
+import {
+  cert,
+  getApps,
+  initializeApp,
+  type AppOptions,
+} from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const projectId =

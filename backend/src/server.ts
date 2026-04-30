@@ -12,6 +12,20 @@ function getAllowedOrigins(): string[] {
     .filter(Boolean);
 }
 
+function validateCorsOrigin(
+  origin: string | undefined,
+  callback: (error: Error | null, allow?: boolean) => void,
+): void {
+  const allowedOrigins = getAllowedOrigins();
+
+  if (!origin || allowedOrigins.includes(origin)) {
+    callback(null, true);
+    return;
+  }
+
+  callback(new Error(`Origin ${origin} is not allowed by CORS`));
+}
+
 export async function createNestApplication(expressInstance?: Express) {
   const app = expressInstance
     ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
@@ -26,16 +40,7 @@ export async function createNestApplication(expressInstance?: Express) {
   );
 
   app.enableCors({
-    origin: (origin, callback) => {
-      const allowedOrigins = getAllowedOrigins();
-
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      callback(new Error(`Origin ${origin} is not allowed by CORS`));
-    },
+    origin: validateCorsOrigin,
     credentials: true,
   });
 
