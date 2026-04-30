@@ -10,17 +10,17 @@ import {
 export class CreateScoreDto {
   @IsString()
   @IsNotEmpty()
-  playerName: string;
+  playerName!: string;
 
   @IsInt()
   @Min(0)
-  score: number;
+  score!: number;
 
   @IsObject()
-  improvements: Record<string, number>;
+  improvements!: Record<string, number>;
 
   @IsInt()
   @Min(1)
   @Max(60 * 60 * 24)
-  elapsedSeconds: number;
+  elapsedSeconds!: number;
 }
