@@ -1,6 +1,6 @@
-# Kaizen Clicker Backend
+# eKaisen Clicker Backend
 
-NestJS API for the Kaizen Clicker ranking system. The backend runs locally as a normal HTTP server and can also be deployed to Firebase Functions in the same Firebase project.
+NestJS API for the eKaisen Clicker ranking system. The backend runs locally as a normal HTTP server and can also be deployed to Firebase Functions in the same Firebase project.
 
 ## Database
 

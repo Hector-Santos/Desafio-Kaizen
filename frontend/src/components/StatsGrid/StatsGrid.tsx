@@ -11,7 +11,7 @@ export function StatsGrid({ game, metrics }: StatsGridProps) {
   return (
     <Styled.Grid>
       <StatCard
-        label="Kaizen Points"
+        label="eKaisen Points"
         value={Math.floor(game.points).toLocaleString('en-US')}
       />
       <StatCard

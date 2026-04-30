@@ -10,7 +10,7 @@ export function AppHeader({ onRankingClick, onSaveClick }: AppHeaderProps) {
   return (
     <Styled.Header>
       <Styled.Brand>
-        <h1>Kaizen Clicker</h1>
+        <h1>eKaisen Clicker</h1>
         <p>
           Optimize your factory line, reduce defects, and climb the ranking.
         </p>
